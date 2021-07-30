@@ -27,16 +27,14 @@ def parse_args():
                         help="'w h' tuple of desired output resolution")
 
     parser.add_argument("-d", "--deleted",
-                        help="Folder to put deleted images") 
-    
+                        help="Folder to put deleted images")
+
     parser.add_argument("-t", "--croptype",
                         help="Type of cropping to do. Currently supported: GIVEN, LARGEST. LARGEST default",
-                        default="LARGEST") 
+                        default="GIVEN")
 
     args = parser.parse_args()
     return args
-
-
 
 
 
@@ -52,7 +50,7 @@ def on_click(event, x, y, flags, params):
         cx, cy = int((x/dim[0])*w), int((y/dim[1])*h) #click coords on non-resized image
 
         print(f"({params['num_img']}/{num_imgs})")
-        
+
         try:
             if args.croptype == "LARGEST":
                 crop = crop_largest_bound(img, cx, cy, resw, resh)
@@ -64,7 +62,7 @@ def on_click(event, x, y, flags, params):
             cv2.imwrite(f"{args.output}/{fname}", crop)
             cv2.destroyAllWindows()
         except (cv2.error, IndexError):
-            print("Crop out of bounds. Retry")
+            print("Out of bounds.")
 
     elif event == cv2.EVENT_MBUTTONDOWN:
         cv2.imwrite(f"{args.deleted}/{fname}", img)
@@ -88,21 +86,18 @@ def on_click(event, x, y, flags, params):
             else:
                 new_resw, new_resh = 2 * int(min_height*resw/resh), 2 * min_height
 
-        
 
-        
 
-        
         drawn = params["resized"].copy()
 
-        cv2.line(drawn, (x,0), (x,3000), (0,20,0), 1)
-        cv2.line(drawn, (0,y), (3000,y), (0,20,0), 1)
+        cv2.line(drawn, (x,0), (x,3000), (200,20,0), 1)
+        cv2.line(drawn, (0,y), (3000,y), (200,0), 1)
 
         rect_width = int((new_resw * params["dim"][0] / w) / 2)
         rect_height = int((new_resh * params["dim"][1] / h) / 2)
 
-        if args.croptype == "GIVEN": cv2.rectangle(drawn, (x - rect_width, y - rect_height), (x + rect_width, y + rect_height), (0, 20, 0), 1)
-        if args.croptype == "LARGEST": cv2.rectangle(drawn, (x - rect_width, y - rect_height), (x + rect_width, y + rect_height), (0, 20, 0), 1)
+        if args.croptype == "GIVEN": cv2.rectangle(drawn, (x - rect_width, y - rect_height), (x + rect_width, y + rect_height), (200, 20, 0), 5)
+        if args.croptype == "LARGEST": cv2.rectangle(drawn, (x - rect_width, y - rect_height), (x + rect_width, y + rect_height), (200, 20, 0), 5)
         cv2.imshow("image", drawn)
 
     elif event == cv2.EVENT_MOUSEWHEEL and args.croptype == "GIVEN":
@@ -110,7 +105,7 @@ def on_click(event, x, y, flags, params):
 
             prop[0] = prop[0] + 0.05 * proportion
             print("Res:",round(prop[0], 2))
-            
+
         else:
             prop[0] = prop[0] - 0.05 * proportion
             print("Res:",round(prop[0], 1))
@@ -121,13 +116,13 @@ def on_click(event, x, y, flags, params):
         cx, cy = int((x/dim[0])*w), int((y/dim[1])*h)
 
         drawn = params["resized"].copy()
-        cv2.line(drawn, (x,0), (x,3000), (0,20,0), 1)
-        cv2.line(drawn, (0,y), (3000,y), (0,20,0), 1)
+        cv2.line(drawn, (x,0), (x,3000), (0,100,0), 1)
+        cv2.line(drawn, (0,y), (3000,y), (0,100,0), 1)
 
         rect_width = int((new_resw * params["dim"][0] / w) / 2)
         rect_height = int((new_resh * params["dim"][1] / h) / 2)
 
-        if args.croptype == "GIVEN": cv2.rectangle(drawn, (x - rect_width, y - rect_height), (x + rect_width, y + rect_height), (0, 20, 0), 1)
+        if args.croptype == "GIVEN": cv2.rectangle(drawn, (x - rect_width, y - rect_height), (x + rect_width, y + rect_height), (0, 20, 0), 5)
         cv2.imshow("image", drawn)
 
 
@@ -155,7 +150,7 @@ def get_centers(folder, filename, num_img):
 
 
 
-            
+
         if cv2.waitKey(0) == ord("q"):
             print("Quitting...")
             sys.exit()
